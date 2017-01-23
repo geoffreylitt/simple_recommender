@@ -27,6 +27,11 @@ module SimpleRecommender
 
       private
 
+      # Returns a Postgres query that can be executed to return similar items.
+      # Reflects on the association to get relevant table names, and then
+      # uses Postgres's integer array intersection/union operators to
+      # efficiently compute a Jaccard similarity metric between this item
+      # and all other items in the table.
       def similar_query(association_name:, n_results:)
         association = self.class.reflect_on_association(association_name)
         join_table = association.join_table #books_users

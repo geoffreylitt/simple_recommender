@@ -1,34 +1,45 @@
-# simple-recommender
+# simple_recommender
 
 A quick and easy way to get "Users who liked X also liked Y" recommendations
-in your Rails application.
+in your Rails/Postgres application.
 
 ```ruby
 # Find the top 3 similar books, based on users who liked Harry Potter
+
+book = Book.find_by(name: "Harry Potter")
+# => #<Book id: 1115, name: "Harry Potter">
+
 book.similar_by_users(n_results: 3)
 # => [#<Book id: 1840, name: "Twilight">,
       #<Book id: 1231, name: "Redwall">,
       #<Book id: 1455, name: "Lord of the Rings">]
 ```
 
-Unlike [similar](https://github.com/Pathgather/predictor) [gems](https://github.com/davidcelis/recommendable) that require you tracking relationships between entities in Redis, simple-recommender uses the associations you already have in your Postgres database, making it easier to get started.
+Unlike similar gems like [predictor](https://github.com/Pathgather/predictor) and [recommendable](https://github.com/davidcelis/recommendable) that require you to track relationships between entities in Redis, simple_recommender uses the associations you already have in your database, making it easier to get started.
 
-The performance is probably adequate for early-stage apps with a small amount
-of data that just want to get started with basic recommendations, but YMMV.
+There is currently no offline pre-computation of recommendations, and everything happens in real time. The performance is adequate for early-stage apps with a small amount of data that just want to have basic recommendations. For larger amounts of data, YMMV.
 
-**This gem is currently in early development and not ready for production use, or really any use at all.**
+**This gem is currently in early development and not anywhere near ready for production use.**
 
-## Installation
+## Getting started
 
-Add to your `Gemfile`:
+### Prerequisites
 
-`gem 'simple-recommender'`
+This gem currently works with Rails 4, and requires you to be using Postgres
+as your database (because it uses Postgres-specific functionality to efficiently
+compute similarity).
 
-Run `bundle install` and restart any running servers.
+### Installation
+
+This gem isn't published on RubyGems yet, so add a git reference to your Gemfile:
+
+`gem 'simple_recommender', github: 'geoffreylitt/simple_recommender'`
 
 ## Usage
 
 You can now add `include SimpleRecommender::Recommendable` to any ActiveRecord model with a `has_and_belongs_to_many` association.
+
+For example, let's say you have Books that are associated with Users:
 
 ```ruby
 class Book < ActiveRecord::Base
@@ -38,18 +49,27 @@ class Book < ActiveRecord::Base
 end
 ```
 
-Then you can call `similar_by_users` on any instance:
+Then you can call `similar_by_users` on any instance of a `Book`:
 
 ```ruby
 book = Book.find_by(name: "Harry Potter")
 # => #<Book id: 1115, name: "Harry Potter">
 
 # Find the top 3 similar books, based on users who liked Harry Potter
-book.similar_by_users(n_results: 3)
+similar_books = book.similar_by_users(n_results: 3)
 # => [#<Book id: 1840, name: "Twilight">,
       #<Book id: 1231, name: "Redwall">,
       #<Book id: 1455, name: "Lord of the Rings">]
+```
 
+The items are sorted in descending order of similarity. Each item also has
+a `similarity` value you can use to find out how similar the items were.
+1.0 means the exact same users are associated with the items, and 0.0 means that
+there is no overlap in associated users.
+
+```ruby
+similar_books.map(&:similarity)
+# => [0.5, 0.421, 0.334]
 ```
 
 ## Roadmap
