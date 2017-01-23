@@ -1,0 +1,28 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+harry_potter:
+  name: Harry Potter
+
+lotr:
+  name: Lord of the Rings
+
+twilight:
+  name: Twilight
+
+learning_ruby:
+  name: Learning Ruby
+
+learning_python:
+  name: Learning Python
+
+learning_cpp:
+  name: Learning C++
+
+playing_violin:
+  name: Playing Violin
+
+playing_mandolin:
+  name: Playing Mandolin
+
+playing_piano:
+  name: Playing Piano
