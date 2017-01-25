@@ -2,36 +2,27 @@
 
 fiction_fred:
   name: Fiction Fred
-  books: harry_potter, lotr
 
 fiction_fanny:
   name: Fiction Fanny
-  books: harry_potter, twilight
 
 fiction_fil:
   name: Fiction Fil
-  books: lotr, twilight
 
 programmer_paulina:
   name: Programmer Paulina
-  books: learning_ruby, learning_python
 
 programmer_paul:
   name: Programmer Paul
-  books: learning_ruby, learning_python, learning_cpp
 
 programmer_paige:
   name: Programmer Paige
-  books: learning_cpp
 
 musician_maggie:
   name: Musician Maggie
-  books: playing_violin, playing_mandolin
 
 musician_mark:
   name: Musician Mark
-  books: playing_violin, playing_piano
 
 musician_melanie:
   name: Musician Melanie
-  books: playing_piano, playing_mandolin, playing_violin

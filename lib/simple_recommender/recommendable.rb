@@ -13,11 +13,9 @@ module SimpleRecommender
         ))
       end
 
-      # For each HABTM association, add a dynamically named shortcut method
+      # For each applicable association, add a dynamically named shortcut method
       # e.g. when basing similarity on users, define :similar_by_users
-      # todo: should be able to support has_many and has_many_through
-      #       in addition to HABTM
-      self.reflect_on_all_associations(:has_and_belongs_to_many).each do |association|
+      self.reflect_on_all_associations.each do |association|
         association_name = association.name
 
         define_method "similar_by_#{association_name}" do |n_results: DEFAULT_N_RESULTS|
@@ -33,10 +31,16 @@ module SimpleRecommender
       # efficiently compute a Jaccard similarity metric between this item
       # and all other items in the table.
       def similar_query(association_name:, n_results:)
-        association = self.class.reflect_on_association(association_name)
-        join_table = association.join_table #books_users
-        fkey = association.foreign_key #book_id
-        assoc_fkey = association.association_foreign_key #user_id
+        reflection = self.class.reflect_on_association(association_name)
+
+        if reflection.nil?
+          raise ArgumentError, "Could not find association #{association_name}"
+        end
+
+        metadata = association_metadata(reflection)
+        join_table = metadata[:join_table]
+        fkey = metadata[:foreign_key]
+        assoc_fkey = metadata[:association_foreign_key]
         this_table = self.class.table_name
 
         <<-SQL
@@ -57,6 +61,29 @@ module SimpleRecommender
           ORDER BY similarity DESC;
         SQL
       end
+
+      # Returns database metadata about an association based on its type,
+      # used in constructing a similarity query based on that association
+      def association_metadata(reflection)
+        case reflection
+        when ActiveRecord::Reflection::HasAndBelongsToManyReflection
+          AssociationMetadata.new(
+            reflection.join_table,
+            reflection.foreign_key,
+            reflection.association_foreign_key
+          )
+        when ActiveRecord::Reflection::ThroughReflection
+          AssociationMetadata.new(
+            reflection.through_reflection.table_name,
+            reflection.through_reflection.foreign_key,
+            reflection.association_foreign_key
+          )
+        else
+          raise ArgumentError, "Association '#{reflection.name}' is not a supported type"
+        end
+      end
+
+      AssociationMetadata = Struct.new(:join_table, :foreign_key, :association_foreign_key)
     end
   end
 end

@@ -2,7 +2,8 @@ PATH
   remote: .
   specs:
     simple_recommender (0.0.1)
-      rails (~> 4.2.1)
+      pg (~> 0.19)
+      rails (~> 4.2)
 
 GEM
   remote: https://rubygems.org/
@@ -106,5 +107,4 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  pg
   simple_recommender!
