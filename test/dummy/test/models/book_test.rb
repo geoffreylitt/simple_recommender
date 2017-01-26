@@ -3,10 +3,6 @@ require 'test_helper'
 class BookTest < ActiveSupport::TestCase
   describe BookTest do
 
-    it "loads book fixtures" do
-      assert_equal 9, Book.count
-    end
-
     describe "#similar_by" do
       let(:book) { Book.first }
 
@@ -39,40 +35,43 @@ class BookTest < ActiveSupport::TestCase
       end
     end
 
-    # todo: add back these tests of actual correctness
-    # (will require some reworking of fixtures)
+    let(:python_book) { Book.find_by(name: "Learning Python") }
+    let(:ruby_book) { Book.find_by(name: "Learning Ruby") }
+    let(:cpp_book) { Book.find_by(name: "Learning C++") }
+    let(:violin_book) { Book.find_by(name: "Playing Violin") }
 
-    # let(:python_book) { Book.find_by(name: "Learning Python") }
-    # let(:ruby_book) { Book.find_by(name: "Learning Ruby") }
-    # let(:cpp_book) { Book.find_by(name: "Learning C++") }
+    describe "#similar_by_tags" do
+      let(:n_results) { 3 }
+      subject { python_book.similar_by_tags(n_results: n_results) }
 
-    # describe "#similar_by" do
-    #   let(:n_results) { 2 }
-    #   subject { python_book.similar_by_users(n_results: n_results) }
+      it "returns similar books" do
+        assert_equal [ruby_book, cpp_book, violin_book], subject
+      end
 
-    #   it "returns similar books" do
-    #     assert_equal [ruby_book, cpp_book], subject
-    #   end
+      it "returns similarity scores" do
+        expected_similarities = [1.0, (2.0/3), (1.0/4)]
 
-    #   it "returns similarity scores" do
-    #     expected_similarities = [1.0, (1.0/3)]
+        expected_similarities.zip(subject.map(&:similarity)).each do |expected, actual|
+          assert_in_delta expected, actual, 0.01
+        end
+      end
+    end
 
-    #     expected_similarities.zip(subject.map(&:similarity)).each do |expected, actual|
-    #       assert_in_delta expected, actual, 0.01
-    #     end
-    #   end
+    describe "#similar_by_users" do
+      let(:n_results) { 3 }
+      subject { python_book.similar_by_users(n_results: n_results) }
 
-    #   describe "when there are zero-similarity elements" do
-    #     let(:n_results) { 4 }
+      it "returns similar books" do
+        assert_equal [ruby_book, cpp_book, violin_book], subject
+      end
 
-    #     it "returns similarity scores" do
-    #       expected_similarities = [1.0, (1.0/3), 0, 0]
+      it "returns similarity scores" do
+        expected_similarities = [1.0, (1.0/3), (1.0/3)]
 
-    #       expected_similarities.zip(subject.map(&:similarity)).each do |expected, actual|
-    #         assert_in_delta expected, actual, 0.01
-    #       end
-    #     end
-    #   end
-    # end
+        expected_similarities.zip(subject.map(&:similarity)).each do |expected, actual|
+          assert_in_delta expected, actual, 0.01
+        end
+      end
+    end
   end
 end

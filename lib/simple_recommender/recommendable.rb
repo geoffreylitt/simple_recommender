@@ -7,10 +7,12 @@ module SimpleRecommender
       DEFAULT_N_RESULTS = 10
 
       def similar_by(association_name, n_results: DEFAULT_N_RESULTS)
-        self.class.find_by_sql(similar_query(
+        query = similar_query(
           association_name: association_name,
           n_results: n_results
-        ))
+        )
+
+        self.class.find_by_sql(query)
       end
 
       # For each applicable association, add a dynamically named shortcut method

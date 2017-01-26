@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+fiction:
+  name: Fiction
+
+nonfiction:
+  name: Nonfiction
+
+fantasy:
+  name: Fantasy
+
+programming:
+  name: programming
+
+scripting:
+  name: scripting
+
+music:
+  name: music

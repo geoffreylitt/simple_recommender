@@ -1,0 +1,57 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+a:
+  user: fiction_fred
+  book: harry_potter
+
+b:
+  user: fiction_fred
+  book: lotr
+
+c:
+  user: fiction_fanny
+  book: harry_potter
+
+d:
+  user: fiction_fanny
+  book: great_expectations
+
+e:
+  user: fiction_fil
+  book: lotr
+
+f:
+  user: fiction_fil
+  book: great_expectations
+
+g:
+  user: programmer_paulina
+  book: learning_ruby
+
+h:
+  user: programmer_paulina
+  book: learning_python
+
+i:
+  user: programmer_paul
+  book: learning_ruby
+
+j:
+  user: programmer_paul
+  book: learning_python
+
+k:
+  user: programmer_paul
+  book: learning_cpp
+
+l:
+  user: programmer_paige
+  book: learning_ruby
+
+m:
+  user: programmer_paige
+  book: learning_python
+
+n:
+  user: programmer_paige
+  book: playing_violin

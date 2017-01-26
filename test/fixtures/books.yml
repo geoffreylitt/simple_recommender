@@ -2,27 +2,28 @@
 
 harry_potter:
   name: Harry Potter
+  tags: fiction, fantasy
 
 lotr:
   name: Lord of the Rings
+  tags: fiction, fantasy
 
-twilight:
-  name: Twilight
+great_expectations:
+  name: Great Expectations
+  tags: fiction
 
 learning_ruby:
   name: Learning Ruby
+  tags: nonfiction, programming, scripting
 
 learning_python:
   name: Learning Python
+  tags: nonfiction, programming, scripting
 
 learning_cpp:
   name: Learning C++
+  tags: nonfiction, programming
 
 playing_violin:
   name: Playing Violin
-
-playing_mandolin:
-  name: Playing Mandolin
-
-playing_piano:
-  name: Playing Piano
+  tags: nonfiction, music
