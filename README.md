@@ -6,11 +6,11 @@ in your Rails/Postgres application.
 ```ruby
 book = Book.find_by(name: "Harry Potter")
 
-# Find the 3 books most similar to Harry Potter
-book.similar_by_users(n_results: 3)
+# Find the books most similar to Harry Potter, based on who liked them
+book.similar_items
 # => [#<Book id: 1840, name: "Twilight">,
       #<Book id: 1231, name: "Redwall">,
-      #<Book id: 1455, name: "Lord of the Rings">]
+      #<Book id: 1455, name: "Lord of the Rings">...]
 ```
 
 **What makes this gem unique?**
@@ -68,38 +68,28 @@ Now you should have everything you need to get started!
 
 ## Usage
 
-You can add `include SimpleRecommender::Recommendable` to any ActiveRecord model. It will define a method called `similar_by_<association_name>` for any `has_and_belongs_to_many` or `has_many, through:` association on the model.
+You can add `include SimpleRecommender::Recommendable` to any ActiveRecord model,
+and then define an association to use for similarity matching.
 
-For example, let's say you have Books in your app. Books are associated with Tags. They're also associated with Users through Likes:
+For example, let's say you have Books in your app. Books are associated with Users through Likes. We want to say that two books are similar if they are liked by many of the same users.
+
+It's as easy as adding two lines to your model:
 
 ```ruby
 class Book < ActiveRecord::Base
-  has_and_belongs_to_many :tags
-
   has_many :likes
   has_many :users, through: :likes
 
   include SimpleRecommender::Recommendable
+  similar_by :users
 end
 
 ```
 
-Now you can call `similar_by_tags` on any `Book` instance to find books that share the most tags with the given book.
+Now you can call `similar_items` to find similar books based on who liked them!
 
 ```ruby
-book = Book.find_by(name: "Harry Potter")
-# => #<Book id: 1115, name: "Harry Potter">
-
-book.similar_by_tags(n_results: 3)
-# => [#<Book id: 1110, name: "Hunger Games">,
-      #<Book id: 1258, name: "The Golden Compass">,
-      #<Book id: 1552, name: "Inkheart">]
-```
-
-or `similar_by_users` to find books that overlap the most in terms of users who liked the books:
-
-```ruby
-book.similar_by_users(n_results: 3)
+book.similar_items(n_results: 3)
 # => [#<Book id: 1840, name: "Twilight">,
       #<Book id: 1231, name: "Redwall">,
       #<Book id: 1455, name: "Lord of the Rings">]
@@ -111,7 +101,7 @@ a `similarity` method you can call to find out how similar the items were.
 there is no overlap at all.
 
 ```ruby
-book.similar_by_users(n_results: 3).map(&:similarity)
+book.similar_items(n_results: 3).map(&:similarity)
 # => [0.5, 0.421, 0.334]
 ```
 
@@ -121,6 +111,7 @@ You can also decide how many results to return with the `n_results` parameter.
 
 This gem is still in early development. Some changes I'm considering:
 
+* similarity based on multiple associations combined
 * "user-item" recommendation: recommend things to a user based on all their items
 * recommendations based on numerical ratings rather than like/dislike
 * recommendations based on a weighted mix of various associations

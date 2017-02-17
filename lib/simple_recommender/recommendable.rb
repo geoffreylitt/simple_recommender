@@ -1,31 +1,45 @@
 module SimpleRecommender
   module Recommendable
     extend ActiveSupport::Concern
+    DEFAULT_N_RESULTS = 10
+    SIMILARITY_KEY = "similarity" # todo: allow renaming to avoid conflicts
+    AssociationMetadata = Struct.new(:join_table, :foreign_key, :association_foreign_key)
 
-    included do
-      SIMILARITY_KEY = "similarity" # todo: allow renaming to avoid conflicts
-      DEFAULT_N_RESULTS = 10
-
-      def similar_by(association_name, n_results: DEFAULT_N_RESULTS)
-        query = similar_query(
-          association_name: association_name,
-          n_results: n_results
-        )
-
-        self.class.find_by_sql(query)
-      end
-
-      # For each applicable association, add a dynamically named shortcut method
-      # e.g. when basing similarity on users, define :similar_by_users
-      self.reflect_on_all_associations.each do |association|
-        association_name = association.name
-
-        define_method "similar_by_#{association_name}" do |n_results: DEFAULT_N_RESULTS|
-          similar_by(association_name, n_results: n_results)
+    module ClassMethods
+      def similar_by(association_name)
+        define_method :similar_items do |n_results: DEFAULT_N_RESULTS|
+          query = similar_query(
+                    association_name: association_name,
+                    n_results: n_results
+                  )
+          self.class.find_by_sql(query)
         end
       end
+    end
 
+    included do
       private
+
+      # Returns database metadata about an association based on its type,
+      # used in constructing a similarity query based on that association
+      def association_metadata(reflection)
+        case reflection
+        when ActiveRecord::Reflection::HasAndBelongsToManyReflection
+          AssociationMetadata.new(
+            reflection.join_table,
+            reflection.foreign_key,
+            reflection.association_foreign_key
+          )
+        when ActiveRecord::Reflection::ThroughReflection
+          AssociationMetadata.new(
+            reflection.through_reflection.table_name,
+            reflection.through_reflection.foreign_key,
+            reflection.association_foreign_key
+          )
+        else
+          raise ArgumentError, "Association '#{reflection.name}' is not a supported type"
+        end
+      end
 
       # Returns a Postgres query that can be executed to return similar items.
       # Reflects on the association to get relevant table names, and then
@@ -63,29 +77,6 @@ module SimpleRecommender
           ORDER BY similarity DESC;
         SQL
       end
-
-      # Returns database metadata about an association based on its type,
-      # used in constructing a similarity query based on that association
-      def association_metadata(reflection)
-        case reflection
-        when ActiveRecord::Reflection::HasAndBelongsToManyReflection
-          AssociationMetadata.new(
-            reflection.join_table,
-            reflection.foreign_key,
-            reflection.association_foreign_key
-          )
-        when ActiveRecord::Reflection::ThroughReflection
-          AssociationMetadata.new(
-            reflection.through_reflection.table_name,
-            reflection.through_reflection.foreign_key,
-            reflection.association_foreign_key
-          )
-        else
-          raise ArgumentError, "Association '#{reflection.name}' is not a supported type"
-        end
-      end
-
-      AssociationMetadata = Struct.new(:join_table, :foreign_key, :association_foreign_key)
     end
   end
 end
