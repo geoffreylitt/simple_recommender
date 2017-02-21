@@ -1,33 +1,40 @@
 # simple_recommender
 
-A quick and easy way to get "Users who liked X also liked Y" recommendations
-in your Rails/Postgres application.
+🔍 A quick and easy way to get "Users who liked X also liked Y" recommendations
+for related items in your Rails/Postgres application.
 
 ```ruby
 book = Book.find_by(name: "Harry Potter")
 
-# Find the books most similar to Harry Potter, based on who liked them
+# Find the books most similar to Harry Potter, based on users' likes
 book.similar_items
 # => [#<Book id: 1840, name: "Twilight">,
       #<Book id: 1231, name: "Redwall">,
       #<Book id: 1455, name: "Lord of the Rings">...]
 ```
 
-**What makes this gem unique?**
+**Why should I used this gem?**
 
-Unlike similar gems like [predictor](https://github.com/Pathgather/predictor) and [recommendable](https://github.com/davidcelis/recommendable) that require you to track relationships between entities in Redis, simple_recommender uses the associations you already have in your Postgres database, making it easier to get started.
+Unlike similar gems like [predictor](https://github.com/Pathgather/predictor) and [recommendable](https://github.com/davidcelis/recommendable) that require you to track relationships between entities in Redis, simple_recommender uses the associations you already have in your Postgres database.
 
-It's also very simple ([under 100 LOC](https://github.com/geoffreylitt/simple_recommender/blob/master/lib/simple_recommender/recommendable.rb)) so you can easily understand what's going on.
+This means you don't have to maintain a separate copy of your data, and also don't incur the operational complexity of needing to use Redis. Hooray for simplicity!
 
-**Is it performant?**
+**But is it fast enough?**
 
-This gem uses fast integer array operations built into Postgres, so the performance is adequate for apps with a small amount of data. For larger amounts of data, YMMV.
+simple_recommender uses fast integer array operations built into Postgres,
+so it's fast enough to return realtime recommendations for many applications.
 
-In the future I may add an offline pre-computation step to support larger datasets.
+As a rough guideline based on benchmarking with a Heroku Standard 0 database:
+if you have under 100,000 records in your join table (e.g., less than 100,000
+Likes in the above example), then simple_recommender can return queries within
+a couple hundred milliseconds.
 
-**Can I use it in production?**
+If you're not sure if this is fast enough for your use case, I would recommend
+trying it out on your data; it's just a couple lines of code to get started.
 
-This gem is currently in early development and not intended for production use. Use at your own risk.
+If you know that you have way more data than that, I would recommend looking into
+one of the Redis-based gems that allow for offline precomputation. I'm also
+considering adding offline precomputation to this gem to allow for higher scale.
 
 ## Getting started
 
@@ -35,7 +42,7 @@ This gem is currently in early development and not intended for production use. 
 
 This gem requires:
 
-* Rails 4.x
+* Rails 4+
 * PostgreSQL ([setup guide](https://www.digitalocean.com/community/tutorials/how-to-setup-ruby-on-rails-with-postgres))
 
 ### Installation
@@ -111,11 +118,10 @@ You can also decide how many results to return with the `n_results` parameter.
 
 This gem is still in early development. Some changes I'm considering:
 
-* similarity based on multiple associations combined
-* "user-item" recommendation: recommend things to a user based on all their items
+* offline precomputation of recommendations for higher-volume datasets
+* similarity based on multiple associations combined with weights
+* "user-item" recommendation: recommend things to a user based on all of their items
 * recommendations based on numerical ratings rather than like/dislike
 * recommendations based on a weighted mix of various associations
-* offline precomputation of recommendations for higher-volume datasets
 * MySQL support
-* Better Rails 5 support
 
