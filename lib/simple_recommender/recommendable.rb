@@ -63,8 +63,8 @@ module SimpleRecommender
           WITH similar_items AS (
             SELECT
               t2.#{fkey},
-              (# (array_agg(DISTINCT t1.#{assoc_fkey}) & array_agg(DISTINCT t2.#{assoc_fkey})))::float/
-              (# (array_agg(DISTINCT t1.#{assoc_fkey}) | array_agg(DISTINCT t2.#{assoc_fkey})))::float as similarity
+              (# (array_agg(DISTINCT t1.#{assoc_fkey}::int) & array_agg(DISTINCT t2.#{assoc_fkey}::int)))::float/
+              (# (array_agg(DISTINCT t1.#{assoc_fkey}::int) | array_agg(DISTINCT t2.#{assoc_fkey}::int)))::float as similarity
             FROM #{join_table} AS t1, #{join_table} AS t2
             WHERE t1.#{fkey} = #{id} and t2.#{fkey} != #{id}
             GROUP BY t2.#{fkey}
