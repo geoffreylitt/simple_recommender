@@ -19,6 +19,8 @@ Unlike similar gems like [predictor](https://github.com/Pathgather/predictor) an
 
 This means you don't have to maintain a separate copy of your data, and also don't incur the operational complexity of needing to use Redis. Hooray for simplicity!
 
+For more background on the idea behind the gem, see [this blog post](https://www.geoffreylitt.com/2017/03/19/building-a-rails-recommendation-engine.html).
+
 **But is it fast enough?**
 
 simple_recommender uses fast integer array operations built into Postgres,
